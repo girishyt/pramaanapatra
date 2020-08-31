@@ -1,0 +1,89 @@
+Step#1:Generate Crypto Materials
+
+../bin/cryptogen generate --config=./organizations/cryptogen/crypto-config-puc.yaml --output="organizations"
+
+../bin/cryptogen generate --config=./organizations/cryptogen/crypto-config-eng.yaml --output="organizations"
+
+../bin/cryptogen generate --config=./organizations/cryptogen/crypto-config-training.yaml --output="organizations"
+
+../bin/cryptogen generate --config=./organizations/cryptogen/crypto-config-company.yaml --output="organizations"
+
+../bin/cryptogen generate --config=./organizations/cryptogen/crypto-config-orderer.yaml --output="organizations"
+
+
+Step#2: Execute the ./organizations/ccp-generate.sh
+
+Step#3: Create Consortium.
+Create configtx folder and add configtx.yaml file.
+Modify the configtx.yaml file and add/update the org names.
+Run 
+configtxgen -profile FourOrgsOrdererGenesis -channelID system-channel -outputBlock ./system-genesis-block/genesis.block
+
+Step#4: Up the network.
+Copy Docker files and update docker-compose.yaml
+
+
+After ./network.sh deployCC
+
+To interact with network, run below commands.
+export PATH=${PWD}/../bin:$PATH
+export FABRIC_CFG_PATH=$PWD/../config/
+
+You can now set the environment variables that allow you to operate the peer CLI as Org1:
+
+# Environment variables for PUC
+
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="PucMSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/puc.example.com/peers/peer0.puc.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/puc.example.com/users/Admin@puc.example.com/msp
+export CORE_PEER_ADDRESS=localhost:7051
+
+
+# Environment variables for Company
+export CORE_PEER_TLS_ENABLED=true
+export CORE_PEER_LOCALMSPID="CompanyMSP"
+export CORE_PEER_TLS_ROOTCERT_FILE=${PWD}/organizations/peerOrganizations/company.example.com/peers/peer0.company.example.com/tls/ca.crt
+export CORE_PEER_MSPCONFIGPATH=${PWD}/organizations/peerOrganizations/company.example.com/users/Admin@company.example.com/msp
+export CORE_PEER_ADDRESS=localhost:10051
+
+Init Ledger command.
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n basic \
+--peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/puc.example.com/peers/peer0.puc.example.com/tls/ca.crt \
+--peerAddresses localhost:8051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/eng.example.com/peers/peer0.eng.example.com/tls/ca.crt \
+--peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/training.example.com/peers/peer0.training.example.com/tls/ca.crt \
+--peerAddresses localhost:10051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/company.example.com/peers/peer0.company.example.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
+
+** For Certificate cc
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n certificate \
+--peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/puc.example.com/peers/peer0.puc.example.com/tls/ca.crt \
+--peerAddresses localhost:8051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/eng.example.com/peers/peer0.eng.example.com/tls/ca.crt \
+--peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/training.example.com/peers/peer0.training.example.com/tls/ca.crt \
+--peerAddresses localhost:10051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/company.example.com/peers/peer0.company.example.com/tls/ca.crt -c '{"function":"InitLedger","Args":[]}'
+
+** Add Student
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n certificate \
+--peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/puc.example.com/peers/peer0.puc.example.com/tls/ca.crt \
+--peerAddresses localhost:8051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/eng.example.com/peers/peer0.eng.example.com/tls/ca.crt \
+--peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/training.example.com/peers/peer0.training.example.com/tls/ca.crt \
+--peerAddresses localhost:10051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/company.example.com/peers/peer0.company.example.com/tls/ca.crt -c '{"function":"CreateStudent","Args":["Madhu","rb@m","456"]}'
+
+** Add Certificate
+
+peer chaincode invoke -o localhost:7050 --ordererTLSHostnameOverride orderer.example.com --tls --cafile ${PWD}/organizations/ordererOrganizations/example.com/orderers/orderer.example.com/msp/tlscacerts/tlsca.example.com-cert.pem -C mychannel -n certificate \
+--peerAddresses localhost:7051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/puc.example.com/peers/peer0.puc.example.com/tls/ca.crt \
+--peerAddresses localhost:8051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/eng.example.com/peers/peer0.eng.example.com/tls/ca.crt \
+--peerAddresses localhost:9051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/training.example.com/peers/peer0.training.example.com/tls/ca.crt \
+--peerAddresses localhost:10051 --tlsRootCertFiles ${PWD}/organizations/peerOrganizations/company.example.com/peers/peer0.company.example.com/tls/ca.crt -c '{"function":"CreateCertificate","Args":["1","PUC","GOVT","12","2010"]}'
+
+
+Query the insertd data
+peer chaincode query -C mychannel -n basic -c '{"Args":["GetAllAssets"]}'
+
+peer chaincode query -C mychannel -n certificate -c '{"Args":["QueryStudent","11"]}'
+
+peer chaincode query -C mychannel -n certificate -c '{"Args":["QueryCertificate","1","1"]}'
+
+Follow the instruction in the doc to update record

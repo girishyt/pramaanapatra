@@ -1,0 +1,49 @@
+{
+    "name": "test-network-training",
+    "version": "1.0.0",
+    "client": {
+        "organization": "Training",
+        "connection": {
+            "timeout": {
+                "peer": {
+                    "endorser": "300"
+                }
+            }
+        }
+    },
+    "organizations": {
+        "Training": {
+            "mspid": "TrainingMSP",
+            "peers": [
+                "peer0.training.example.com"
+            ],
+            "certificateAuthorities": [
+                "ca.training.example.com"
+            ]
+        }
+    },
+    "peers": {
+        "peer0.training.example.com": {
+            "url": "grpcs://localhost:${P0PORT}",
+            "tlsCACerts": {
+                "pem": "${PEERPEM}"
+            },
+            "grpcOptions": {
+                "ssl-target-name-override": "peer0.training.example.com",
+                "hostnameOverride": "peer0.training.example.com"
+            }
+        }
+    },
+    "certificateAuthorities": {
+        "ca.training.example.com": {
+            "url": "https://localhost:${CAPORT}",
+            "caName": "ca-training",
+            "tlsCACerts": {
+                "pem": ["${CAPEM}"]
+            },
+            "httpOptions": {
+                "verify": false
+            }
+        }
+    }
+}

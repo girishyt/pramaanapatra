@@ -1,0 +1,35 @@
+---
+name: test-network-puc
+version: 1.0.0
+client:
+  organization: Puc
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  Puc:
+    mspid: PucMSP
+    peers:
+    - peer0.puc.example.com
+    certificateAuthorities:
+    - ca.puc.example.com
+peers:
+  peer0.puc.example.com:
+    url: grpcs://localhost:${P0PORT}
+    tlsCACerts:
+      pem: |
+          ${PEERPEM}
+    grpcOptions:
+      ssl-target-name-override: peer0.puc.example.com
+      hostnameOverride: peer0.puc.example.com
+certificateAuthorities:
+  ca.puc.example.com:
+    url: https://localhost:${CAPORT}
+    caName: ca-puc
+    tlsCACerts:
+      pem: 
+        - |
+          ${CAPEM}
+    httpOptions:
+      verify: false

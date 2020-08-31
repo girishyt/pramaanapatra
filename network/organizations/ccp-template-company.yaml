@@ -1,0 +1,35 @@
+---
+name: test-network-company
+version: 1.0.0
+client:
+  organization: Company
+  connection:
+    timeout:
+      peer:
+        endorser: '300'
+organizations:
+  Company:
+    mspid: CompanyMSP
+    peers:
+    - peer0.company.example.com
+    certificateAuthorities:
+    - ca.company.example.com
+peers:
+  peer0.company.example.com:
+    url: grpcs://localhost:${P0PORT}
+    tlsCACerts:
+      pem: |
+          ${PEERPEM}
+    grpcOptions:
+      ssl-target-name-override: peer0.company.example.com
+      hostnameOverride: peer0.company.example.com
+certificateAuthorities:
+  ca.company.example.com:
+    url: https://localhost:${CAPORT}
+    caName: ca-company
+    tlsCACerts:
+      pem: 
+        - |
+          ${CAPEM}
+    httpOptions:
+      verify: false

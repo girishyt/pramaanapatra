@@ -14,6 +14,7 @@ const FabricCAServices = require('fabric-ca-client');
 const path = require('path');
 const {buildCAClient, registerUser, enrollAdmin} = require('./CAUtil.js');
 const {buildCCP, buildWallet} = require('./AppUtil.js');
+const { response } = require('express');
 
 const channelName = 'mychannel';
 const chaincodeName = 'certificate';
@@ -44,32 +45,62 @@ async function initializeApp(res,org){
     }
     catch (error) {
         console.error(`******** FAILED to initialize the application: ${error}`);
-        throw new Error(`******** FAILED to initialize the application: ${error}`);
+        res.status(500).send(new Error(error));
 	}
     
 }
 
 async function enrollAdminFunc(res){
+    
+    var mspId;
+    if('puc'===globalOrg){
+        mspId = 'PucMSP';
+    }
+
+    if('eng'===globalOrg){
+        mspId = 'EngMSP';
+    }
+    if('training'===globalOrg){
+        mspId = 'TrainingMSP';
+    }
+    if('company'===globalOrg){
+        mspId = 'CompanyMSP';
+    }
+
     try{
-        await enrollAdmin(caClient, wallet);
+        await enrollAdmin(caClient, wallet,mspId);
         console.log('Admin Enrolled for the org: '+globalOrg);
         res.send('Admin Enrolled for the org: '+globalOrg);
     }
     catch(error){
         console.error(`FAILED to enroll the admin for the org:${globalOrg} ${error}`);
-        throw new Error(error);
+        res.status(500).send(new Error(error));
     }
 }
 
 async function registerUserFunc(res,userId,department){
+    var mspId;
+    if('puc'===globalOrg){
+        mspId = 'PucMSP';
+    }
+
+    if('eng'===globalOrg){
+        mspId = 'EngMSP';
+    }
+    if('training'===globalOrg){
+        mspId = 'TrainingMSP';
+    }
+    if('company'===globalOrg){
+        mspId = 'CompanyMSP';
+    }
     try{
-        await registerUser(caClient, wallet, userId, globalOrg+'.'+department);
+        await registerUser(caClient, wallet, userId, globalOrg+'.'+department,mspId);
         console.log('User '+userId+' is successfully registered in '+globalOrg+'.'+department);
         res.send('User '+userId+' is successfully registered in '+globalOrg+'.'+department);
     }
     catch(error){
         console.error(`FAILED to register the user ${userId} for the org:${globalOrg} ${error}`);
-        throw new Error(error);
+        res.status(500).send(new Error(error));
     }
 }
 
@@ -100,7 +131,7 @@ async function getStudent(res,user,studentId) {
     }
     catch(error){
         console.error("Error in getStudent - "+error);
-        throw new Error(error);
+        res.status(500).send(new Error(error));
     }
     finally {
         // Disconnect from the gateway when the application is closing
@@ -136,7 +167,7 @@ async function getCertificate(res,user,studentId,certificateId) {
     }
     catch(error){
         console.error("Error in getCertificate - "+error);
-        throw new Error(error);
+        res.status(500).send(new Error(error));
     }
     finally {
         // Disconnect from the gateway when the application is closing
@@ -171,7 +202,8 @@ async function initLedgerFunc(res,user){
     }
     catch(error){
         console.error("Error in initLedgerFunc - "+error);
-        throw new Error(error);
+        //throw new Error(error);
+        res.status(500).send(new Error(error));
     }
     finally {
         // Disconnect from the gateway when the application is closing
@@ -208,7 +240,7 @@ async function addStudent(res,user,name,email,phone){
     }
     catch(error){
         console.error("Error in initLedgerFunc - "+error);
-        throw new Error(error);
+        res.status(500).send(new Error(error));
         
     }
     finally {
@@ -246,7 +278,7 @@ async function addCertificate(res,user,studentId,university,college,course,issue
     }
     catch(error){
         console.error("Error in initLedgerFunc - "+error);
-        throw new Error(error);
+        res.status(500).send(new Error(error));
         
     }
     finally {

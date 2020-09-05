@@ -27,7 +27,7 @@ exports.buildCAClient = (FabricCAServices, ccp, org) => {
 	return caClient;
 };
 
-exports.enrollAdmin = async (caClient, wallet) => {
+exports.enrollAdmin = async (caClient, wallet, orgMspId) => {
 	try {
 		// Check to see if we've already enrolled the admin user.
 		const identity = await wallet.get(adminUserId);
@@ -43,7 +43,7 @@ exports.enrollAdmin = async (caClient, wallet) => {
 				certificate: enrollment.certificate,
 				privateKey: enrollment.key.toBytes(),
 			},
-			mspId: 'PucMSP',
+			mspId: orgMspId,
 			type: 'X.509',
 		};
 		await wallet.put(adminUserId, x509Identity);
@@ -53,7 +53,7 @@ exports.enrollAdmin = async (caClient, wallet) => {
 	}
 };
 
-exports.registerUser =  async (caClient, wallet, userId, affiliation) => {
+exports.registerUser =  async (caClient, wallet, userId, affiliation, orgMspId) => {
 	try {
 		// Check to see if we've already enrolled the user
 		const userIdentity = await wallet.get(userId);
@@ -90,7 +90,7 @@ exports.registerUser =  async (caClient, wallet, userId, affiliation) => {
 				certificate: enrollment.certificate,
 				privateKey: enrollment.key.toBytes(),
 			},
-			mspId: 'PucMSP',
+			mspId: orgMspId,
 			type: 'X.509',
 		};
 		await wallet.put(userId, x509Identity);
